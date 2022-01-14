@@ -108,11 +108,12 @@ class threejsViewer {
                 texture.type = THREE.UnsignedByteType
                 texture.minFilter = texture.magFilter = THREE.LinearFilter
 
-                let cmtexture = new THREE.DataTexture(colormap,256,1)
+                const cmtexture = new THREE.DataTexture(colormap, 256, 1, THREE.RGBFormat)
+                
                 let material = new THREE.ShaderMaterial({
                     uniforms: {
                         'u_data': { value: texture },
-                        'u_size': { value: new THREE.Vector3() },
+                        'u_size': { value: new THREE.Vector3(dims[0],dims[1], dims[2]) },
                         'u_conda': { value: cmtexture },
                         'u_renderstyle': { value: arg.renderType },
                         'u_sizeEnable': { value: 0 },
@@ -125,15 +126,15 @@ class threejsViewer {
 
                 mesh = new THREE.Mesh(geometry, material)
                 mesh.name = name
-                // mesh.position.set()
-                // mesh.scale.set()
+                mesh.position.set(0,0,0)
+                mesh.scale.set(scale,scale,scale)
                 this.scene.add(mesh)
 
             }
             else {
                 // partial parameters update
                 uniforms = mesh.material.uniforms
-                uniforms['u_renderstyle'].value = ard.renderType
+                uniforms['u_renderstyle'].value = arg.renderType
             }
 
             if (volume.used) {

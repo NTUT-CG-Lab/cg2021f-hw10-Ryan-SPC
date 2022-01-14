@@ -326,7 +326,10 @@
 
             //MIPS or ISO
             document.querySelectorAll('input[name=rtype]').forEach((option) => {
-                option.addEventListener('click', (evt) => { })
+                option.addEventListener('click', (evt) => { 
+                    arg.renderType = 0
+                    controlView.updateRGBA()
+                })
             })
 
             arg.renderType = 0
