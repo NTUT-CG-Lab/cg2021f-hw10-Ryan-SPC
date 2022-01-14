@@ -87,7 +87,7 @@ class threejsViewer {
             }
         }
 
-        //¥Ñ¼v¹³¸ê®Æ¥Í¦¨¼Ò«¬
+        //ï¿½Ñ¼vï¿½ï¿½ï¿½ï¿½Æ¥Í¦ï¿½ï¿½Ò«ï¿½
         this.renderVolume = function (volume, colormap, arg) {
 
             const name = 'volume'
@@ -97,10 +97,59 @@ class threejsViewer {
             let scale = 1 / Math.max(...dims)
 
             if (mesh == null) {
+                
+                
                 //first time initial
+                // let geometry = THREE.BoxGeometry()
+                let shader = VolumeRenderShader1
+
+                let texture = new DataTexture3D(volume.alpha, dims[0], dims[1], dims[2])
+                texture.format = THREE.RedFormat
+                texture.type = THREE.UnsignedByteType
+                texture.minFilter = texture.magFilter = THREE.LinearFilter
+
+                let cmtexture = new THREE.DataTexture(colormap,256,1)
+                let material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        'u_data': { value: texture },
+                        'u_size': { value: new THREE.Vector3() },
+                        'u_conda': { value: cmtexture },
+                        'u_renderstyle': { value: arg.renderType },
+                        'u_sizeEnable': { value: 0 },
+                        'u_sizeData': { value: null },
+                    },
+                    vertexShader: shader.vertexShader,
+                    fragmentShader: shader.fragmentShader,
+                    side: THREE.BackSide
+                })
+
+                mesh = new THREE.Mesh(geometry, material)
+                mesh.name = name
+                // mesh.position.set()
+                // mesh.scale.set()
+                this.scene.add(mesh)
+
             }
             else {
                 // partial parameters update
+                uniforms = mesh.material.uniforms
+                uniforms['u_renderstyle'].value = ard.renderType
+            }
+
+            if (volume.used) {
+                uniforms = mesh.material.uniforms
+                if (uniforms['u_sizeEnable'] == 0) {
+                    let texture = new DataTexture3D(volume.sizeData, dims[0], dims[1], dims[2])
+                    texture.format = THREE.RedFormat
+                    texture.type = THREE.UnsignedByteType
+
+                    uniforms['u_sizeEnable'].value = 1
+                    uniforms['u_sizeData'].value = texture
+                }
+                else {
+                    uniforms['u_sizeData'].value.image ={data: volume.sizeData}
+                    uniforms['u_sizeData'].value.needUpdate = true
+                }
             }
            
             this.renderScene()
